@@ -5,12 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Synky — keep AWS IAM and GitHub Actions OIDC configuration in sync from YAML desired state."
+      content="Automated, auditable IAM for GitHub Actions and AWS. Per-repo deployment roles synced from Terraform, not shared power user roles."
     />
-    <title>Synky</title>
+    <meta name="theme-color" content="#060608" />
+    <link rel="canonical" href="https://synky.io/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://synky.io/" />
+    <meta property="og:title" content="Shared deployment roles are a liability | Synky" />
+    <meta
+      property="og:description"
+      content="Automated, auditable IAM for GitHub Actions and AWS. Per-repo roles synced from Terraform."
+    />
+    <meta property="og:image" content="https://synky.io/assets/og-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Shared deployment roles are a liability | Synky" />
+    <meta
+      name="twitter:description"
+      content="Automated, auditable IAM for GitHub Actions and AWS. Per-repo roles synced from Terraform."
+    />
+    <meta name="twitter:image" content="https://synky.io/assets/og-card.png" />
+    <title>Shared deployment roles are a liability | Synky</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://synky.io/#organization",
+            "name": "Synky Software Ltd",
+            "url": "https://synky.io/",
+            "logo": "https://synky.io/assets/synky-mark.png",
+            "email": "hello@synky.io"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://synky.io/#website",
+            "url": "https://synky.io/",
+            "name": "Synky",
+            "publisher": { "@id": "https://synky.io/#organization" }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://synky.io/#product",
+            "name": "Synky",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Web",
+            "url": "https://synky.io/",
+            "description": "Automated, auditable deployment IAM for GitHub Actions and AWS. Per-repo just-in-time roles synced from Terraform.",
+            "publisher": { "@id": "https://synky.io/#organization" }
+          }
+        ]
+      }
+    </script>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="favicon.ico" sizes="any" />
-    <link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="favicon-16x16.png" type="image/png" sizes="16x16" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,62 +71,319 @@
     />
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
     <header class="site-header">
-      <a class="logo" href="/">
-        <img
-          class="logo-mark"
-          src="assets/synky-mark.png"
-          width="28"
-          height="28"
-          alt=""
-        />
-        <span>Synky</span>
-      </a>
-      <nav class="nav">
-        <a href="#how-it-works">How it works</a>
-        <a class="btn btn-ghost" href="https://app.synky.io">Sign in</a>
+      <a class="logo" href="/">Synky</a>
+      <nav class="site-nav" aria-label="Primary">
+        <button type="button" class="btn btn-primary btn-nav" data-waitlist-open>
+          Join waitlist
+        </button>
       </nav>
     </header>
 
-    <main>
-      <section class="hero">
-        <p class="eyebrow">DevSecOps · AWS · GitHub Actions</p>
-        <h1>Effortless OIDC and IAM configuration.</h1>
-        <p class="lead">
-          Per-repo least-privilege AWS IAM roles, assumed via OIDC, with event-driven permission sync. 
-          Enroll your org and never worry about your deployment roles again.
-        </p>
-        <div class="cta-row">
-          <a class="btn btn-primary" href="https://app.synky.io">Get started</a>
-          <a class="btn btn-secondary" href="#how-it-works">Learn more</a>
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-stage">
+          <div class="hero-dots" aria-hidden="true"></div>
+          <div class="hero-overlay">
+            <p class="eyebrow">AWS. GitHub. Terraform. OIDC.</p>
+            <h1 id="hero-title" class="hero-risk">
+              Your shared deployment roles are a liability.
+            </h1>
+            <p class="lead">
+              We allow engineers to centrally manage what is deployed to where, using least-privilege just-in-time AWS IAM roles.
+            </p>
+            <div class="cta-row">
+              <a class="btn btn-outline" href="#features">See how</a>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section id="how-it-works" class="features">
-        <article class="feature">
-          <h2>Desired state in YAML</h2>
-          <p>Map repos to AWS accounts and roles. Edit in the UI or upload.</p>
-        </article>
-        <article class="feature">
-          <h2>PR-driven sync</h2>
-          <p>Webhooks on pull requests fetch actual state, diff, and pause for approval when IAM changes.</p>
-        </article>
-        <article class="feature">
-          <h2>In-PR approvals</h2>
-          <p>Reply with <code>/approve</code> or <code>/reject</code> to approve or reject changes to keep developers moving.</p>
-        </article>
-        <article class="feature">
-          <h2>Audit by default</h2>
-          <p>Append-only log per org. Every change tied to actor, resource, and decision.</p>
-        </article>
+      <section class="story" aria-labelledby="story-problem-title">
+        <div class="story-grid">
+          <div class="story-block">
+            <p class="section-label">The problem</p>
+            <h2 id="story-problem-title">
+              Shared power user roles are a compromise everyone accepts until something goes wrong
+            </h2>
+            <p>
+              Maintaining a deployment role for each repository is tedious work, especially at scale.
+              Teams often reuse a handful of powerful roles across their repositories and accept the risk
+              of wider blast radiuses, a lack of least privilege, and a lack of auditability.
+            </p>
+          </div>
+          <div class="story-block">
+            <p class="section-label">Our purpose</p>
+            <h2 id="story-purpose-title" class="story-solution-title">
+              Reduce risk, improve auditability, and make it easy to manage.
+            </h2>
+            <p>
+              Synky generates least-privilege deployment roles just-in-time during GitHub Actions deployments, based
+              on the Terraform being deployed. The roles are short-lived and are automatically revoked after the deployment completes,
+              meaning there is no risk of a power user role being misused and per-deployment auditability is maintained.
+            </p>
+          </div>
+        </div>
       </section>
 
-      <section class="cta-band">
-        <h2>Built for Security and DevOps engineers</h2>
-        <p>AWS IAM and GitHub Actions today. Terraform provider on the roadmap.</p>
-        <button type="button" class="btn btn-primary" data-waitlist-open>
-          Join the waitlist
-        </button>
+      <section id="features" class="how-it-works" aria-labelledby="how-title">
+        <header class="how-head">
+          <p class="section-label">How it works</p>
+          <h2 id="how-title">The five stages of Synky</h2>
+          <p class="section-lead">
+            Map repos to accounts, gate IAM changes, deploy with short-lived roles, and keep an
+            audit trail, without standing power user roles in every account.
+          </p>
+        </header>
+
+        <ol class="how-steps">
+          <li class="how-step">
+            <div class="how-step-marker" aria-hidden="true"><span></span></div>
+            <div class="how-step-body">
+              <div class="how-step-copy">
+                <h3>Centrally manage your repo-to-account map</h3>
+                <p>
+                  Bind repositories, branches, and environments to the AWS accounts they deploy to.
+                  Set least-privilege defaults and whether IAM changes need approval. Build the map
+                  in the UI or declaratively with YAML, so platform never loses track of which
+                  repo can reach which account, via which role.
+                </p>
+              </div>
+              <figure class="how-step-media">
+                <img
+                  src="assets/product-images/mapManagement_fade.png?v=20260902"
+                  alt="Synky map management table showing repository to account bindings"
+                  width="1200"
+                  height="750"
+                  loading="lazy"
+                />
+              </figure>
+            </div>
+          </li>
+
+          <li class="how-step">
+            <div class="how-step-marker" aria-hidden="true"><span></span></div>
+            <div class="how-step-body">
+              <div class="how-step-copy">
+                <h3>Assign your approvers</h3>
+                <p>
+                  Organise teams with members and designated approvers. Attach repositories so 
+                  ownership stays clear as the org grows. Approvers review proposed trust and 
+                  permission changes before they land in AWS. Security gets a gate without 
+                  becoming the IAM ticket queue.
+                </p>
+              </div>
+              <figure class="how-step-media">
+                <img
+                  src="assets/product-images/teamManagement_fade.png"
+                  alt="Synky team management showing teams, members, and linked repositories"
+                  width="1200"
+                  height="750"
+                  loading="lazy"
+                />
+              </figure>
+            </div>
+          </li>
+
+          <li class="how-step">
+            <div class="how-step-marker" aria-hidden="true"><span></span></div>
+            <div class="how-step-body">
+              <div class="how-step-copy">
+                <h3>Deploy and review</h3>
+                <p>
+                  During the deploy phase in GitHub Actions, Synky analyses your Terraform 
+                  and proposes deployment-role permission updates to match what the run 
+                  actually needs. Nothing applies until you approve. Gate by environment, 
+                  path, branch, or repo so material IAM diffs pause for an authorised reviewer.
+                </p>
+              </div>
+              <figure class="how-step-media">
+                <img
+                  src="assets/product-images/reviews_fade.png"
+                  alt="Synky dashboard showing pending reviews and repository metrics"
+                  width="1200"
+                  height="750"
+                  loading="lazy"
+                />
+              </figure>
+            </div>
+          </li>
+
+          <li class="how-step">
+            <div class="how-step-marker" aria-hidden="true"><span></span></div>
+            <div class="how-step-body">
+              <div class="how-step-copy">
+                <h3>Roles deployed Just-In-Time</h3>
+                <p>
+                  At deploy time Synky sets up a short-lived deployer role, runs the plan, 
+                  attaches the scoped permissions the run needs, then applies. When the job 
+                  finishes, the elevated access is cleaned up. No shared power-user 
+                  roles sitting in the account between deploys.
+                </p>
+              </div>
+              <figure class="how-step-media how-step-media--workflow">
+                <img
+                  src="assets/product-images/deploy_workflow.png"
+                  alt="Deploy workflow: Setup Deployer Role, Plan Prod, Assign Role Permissions, Apply Prod"
+                  width="1353"
+                  height="94"
+                  loading="lazy"
+                />
+              </figure>
+            </div>
+          </li>
+
+          <li class="how-step">
+            <div class="how-step-marker" aria-hidden="true"><span></span></div>
+            <div class="how-step-body">
+              <div class="how-step-copy">
+                <h3>Track everything in one place</h3>
+                <p>
+                  The activity feed records triggers, syncs, JIT grants, and review decisions:
+                  what changed, who approved it, and when. When audit asks who touched deployment
+                  access, the answer is already in one place instead of a spreadsheet hunt.
+                </p>
+              </div>
+              <figure class="how-step-media">
+                <img
+                  src="assets/product-images/activity_fade.png"
+                  alt="Synky activity feed showing sync and review events"
+                  width="1200"
+                  height="750"
+                  loading="lazy"
+                />
+              </figure>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="benefits" aria-labelledby="benefits-title">
+        <p class="section-label">The benefits summed up</p>
+        <h2 id="benefits-title" class="sr-only">Key benefits</h2>
+        <div class="benefits-grid">
+          <article class="benefit-card">
+            <h3>Minimal blast radius</h3>
+            <p>
+              Synky links a single role to a single deployment, with permissions tailored 
+              specifically to the resources being read, created, updated or deleted. No other 
+              GitHub organisation, repository or team may assume the role.
+            </p>
+          </article>
+          <article class="benefit-card">
+            <h3>Approval gates</h3>
+            <p>
+              Synky can gate approvals at three points. Firstly, when any changes to the Repository 
+              Map affecting a repository to account binding are triggered. Then, after any Apply or 
+              Destroy. Each gate can be independently controlled for any binding.
+            </p>
+          </article>
+          <article class="benefit-card">
+            <h3>One map for every deploy</h3>
+            <p>
+              A centralised Repository Map allows engineers to control which path, branch, 
+              tag or environment within a repository is deployed to which AWS account, plus 
+              when approvals are required. Group repositories together and point them at the 
+              same account, or use a single account per repository, the map is flexible yet specific.
+            </p>
+          </article>
+          <article class="benefit-card">
+            <h3>Audit by default</h3>
+            <p>
+              We track events from two perspectives; all changes within the UI are tracked and 
+              uniquely attributable, and all management actions performed by the deployment roles 
+              are captured and can be linked to a single deployment. All logs can be exported to 
+              easily supply to auditors.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="founder" aria-labelledby="founder-title">
+        <div class="founder-card">
+          <img
+            class="founder-avatar"
+            src="assets/headshot.png"
+            alt="Harry Carr"
+            width="454"
+            height="454"
+          />
+          <div class="founder-copy">
+            <p class="section-label">About the founder</p>
+            <h2 id="founder-title">Harry Carr</h2>
+            <p class="founder-role">Security Engineering Manager by day <br> Founder of Synky by night</p>
+            <p>
+              I've spent over 10 years building and maintaining systems using an assortment 
+              of tools including Terraform, AWS and GitHub. Most recently I've been leading 
+              a team of security engineers, designing, developing and maintaining 
+              controls to protect data within our organisation's banking environment.
+              <br><br>
+              Identity and Access Management is a constant challege, so
+              I'm building Synky to solve at least one part of the IAM puzzle.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <button type="button" class="cta-final" data-waitlist-open>
+        <span class="cta-final-title">Stop sharing deployment roles across your org, 
+          click here to join the wait list for preview access.</span>
+      </button>
+
+      <section id="faq" class="faq" aria-labelledby="faq-title">
+        <div class="faq-layout">
+          <div class="faq-copy">
+            <p class="section-label">FAQ</p>
+            <h2 id="faq-title">What you want to know</h2>
+            <dl class="faq-list">
+              <div class="faq-item">
+                <dt>What access does Synky need to my AWS account?</dt>
+                <dd>
+                  We need very limited access. Synky requires access to create and manage 
+                  specifically named IAM roles, their trust and permission policies, plus 
+                  access to view the actions performed by those roles in CloudTrail. The access 
+                  is scoped narrowly, the exact permissions we need can be found here.
+                </dd>
+              </div>
+              <div class="faq-item">
+                <dt>We already use OIDC, why do we need Synky?</dt>
+                <dd>
+                  OIDC is only part of the puzzle. Synky handles the roles your repositories 
+                  assume using OIDC, ensures the role’s permissions are least-privilege and 
+                  allows you to easily see exactly what actions were performed within your accounts.
+                </dd>
+              </div>
+              <div class="faq-item">
+                <dt>How do we integrate with Synky?</dt>
+                <dd>
+                  Synky is a SaaS which gives you a centralised UI to manage your repository map, 
+                  users and approvers, and all our other settings. When you’re ready to deploy, 
+                  incorporate two small GitHub actions into your workflows and let Synky do the rest.
+                </dd>
+              </div>
+              <div class="faq-item">
+                <dt>How do you know what permissions the deployment role needs?</dt>
+                <dd>
+                  At deploy time, we analyse both the HCL and the Terraform plan output, 
+                  we correlate this with our internal permissions map and determine the 
+                  permissions required. We can tightly scope the permissions or leave them 
+                  open, you can control this per branch, environment, tag or path.
+                </dd>
+              </div>
+              <div class="faq-item">
+                <dt>I joined the wait list, what now?</dt>
+                <dd>
+                  We’ll reach out to you to understand your use case and potentially provide 
+                  you with pre-live access. Synky isn’t ready for a public live release just 
+                  yet, but we’re looking to partner with teams to understand how we can develop 
+                  the product specifically for your circumstances.
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
       </section>
     </main>
 
@@ -90,22 +397,16 @@
       >
         <header class="drawer-header">
           <h2 id="waitlist-title">Join the waitlist</h2>
-          <button
-            type="button"
-            class="drawer-close"
-            data-waitlist-close
-            aria-label="Close"
-          >
+          <button type="button" class="drawer-close" data-waitlist-close aria-label="Close">
             ×
           </button>
         </header>
-
+        <p class="drawer-lead">We'll reach out when your organisation is invited.</p>
         <form
           id="waitlist-form"
           class="waitlist-form"
           action="https://formspree.io/f/mykvygdz"
           method="POST"
-          novalidate
         >
           <label class="field">
             <span class="field-label">Name</span>
@@ -116,30 +417,46 @@
             <input type="email" name="email" autocomplete="email" required />
           </label>
           <label class="field">
-            <span class="field-label">Company name</span>
-            <input type="text" name="company" autocomplete="organization" required />
+            <span class="field-label">Role</span>
+            <input
+              type="text"
+              name="role"
+              autocomplete="organization-title"
+              placeholder="e.g. Platform Engineer"
+              required
+            />
           </label>
           <label class="field">
-            <span class="field-label">Job title</span>
-            <input type="text" name="job_title" autocomplete="organization-title" required />
+            <span class="field-label">Organisation</span>
+            <input type="text" name="organisation" autocomplete="organization" required />
           </label>
           <p id="waitlist-error" class="waitlist-error" hidden role="alert">
             Something went wrong. Please try again.
           </p>
-          <button type="submit" class="btn btn-primary btn-full">Submit</button>
+          <button type="submit" class="btn btn-primary btn-full">Join the waitlist</button>
         </form>
-
         <div id="waitlist-success" class="waitlist-success" hidden>
-          <p>You're on the list. We'll be in touch soon.</p>
+          <p>You're on the list. We'll be in touch.</p>
         </div>
       </aside>
     </div>
 
     <footer class="site-footer">
-      <span>© Synky</span>
-      <span class="footer-sep" aria-hidden="true">·</span>
-      <a href="mailto:hello@synky.io">Contact</a>
+      <div class="footer-left">
+        <span class="footer-brand">Synky</span>
+        <span class="footer-copy">&copy; 2026 Synky Software Ltd</span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="mailto:hello@synky.io">Contact</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html#cookies" data-cookie-settings>Cookies</a>
+      </nav>
     </footer>
-    <script src="waitlist.js"></script>
+
+    <script src="analytics-config.js"></script>
+    <script src="analytics.js" defer></script>
+    <script src="cookie-consent.js" defer></script>
+    <script src="waitlist.js" defer></script>
   </body>
 </html>

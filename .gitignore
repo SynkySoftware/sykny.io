@@ -1,0 +1,4 @@
+# Local / private — never publish to GitHub Pages
+meta-docs/
+.idea/
+.DS_Store

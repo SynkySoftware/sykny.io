@@ -11,12 +11,30 @@
 
   let lastFocused = null;
 
+  /** Funnel analytics contract — vendor attaches at go-live via window.synkyAnalytics.track */
+  function track(eventName, payload) {
+    const detail = Object.assign({ event: eventName, ts: Date.now() }, payload || {});
+    window.dispatchEvent(new CustomEvent("synky:" + eventName, { detail }));
+    try {
+      const bridge = window.synkyAnalytics;
+      if (bridge && typeof bridge.track === "function") {
+        bridge.track(eventName, detail);
+      }
+    } catch (_) {
+      /* never block UX on analytics */
+    }
+  }
+
+  track("page_view", { path: window.location.pathname || "/" });
+
   function openDrawer() {
     lastFocused = document.activeElement;
     drawer.hidden = false;
     drawer.setAttribute("aria-hidden", "false");
     document.body.classList.add("drawer-open");
     requestAnimationFrame(() => drawer.classList.add("drawer--open"));
+
+    track("waitlist_open", { path: window.location.pathname || "/" });
 
     const firstInput = form.querySelector("input");
     if (firstInput) firstInput.focus();
@@ -52,6 +70,25 @@
       resetForm();
       openDrawer();
     });
+  });
+
+  const panel = drawer.querySelector(".drawer-panel");
+  const focusableSelector =
+    'button:not([disabled]), input:not([disabled]), [href], textarea, select';
+
+  panel.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab" || !drawer.classList.contains("drawer--open")) return;
+    const focusables = [...panel.querySelectorAll(focusableSelector)];
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   });
 
   closeTriggers.forEach((el) => {
@@ -92,8 +129,11 @@
       form.reset();
       form.hidden = true;
       success.hidden = false;
+
+      track("waitlist_submitted", { path: window.location.pathname || "/" });
     } catch {
       error.hidden = false;
+      track("waitlist_error", { path: window.location.pathname || "/" });
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = submitLabel;
