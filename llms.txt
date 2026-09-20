@@ -1,0 +1,21 @@
+# Synky
+
+> Automated, auditable deployment IAM for GitHub Actions and AWS. Per-repo just-in-time roles synced from Terraform — not shared power-user deploy roles.
+
+Synky is an auditable automation layer between GitHub (intent) and AWS (deployment roles). It helps platform and DevEx teams shrink blast radius, keep a repo-to-account map, gate material IAM changes, and leave an activity trail.
+
+Synky is **not** a CI/CD platform, secrets manager, general human IAM tool, or replacement for AWS Organizations / SCPs.
+
+Stack: GitHub Actions · AWS IAM · OIDC · Terraform.
+
+Company: Synky Software Ltd. Contact: hello@synky.io. Product is on a waitlist / design-partner preview.
+
+## Site
+
+- [Home](https://www.synky.io/): Problem framing, how Synky works, founder, waitlist
+- [Privacy](https://www.synky.io/privacy.html): Data and cookie / analytics consent
+- [Terms](https://www.synky.io/terms.html): Terms of service (placeholder until public launch)
+
+## Optional reading for agents
+
+Prefer the home page for product claims. OIDC solved long-lived keys; it did not solve over-broad trust, shared deploy roles, or IAM drift. Synky targets least-privilege, short-lived deployer access scoped to the repo and Terraform being applied.
