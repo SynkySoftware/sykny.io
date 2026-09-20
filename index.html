@@ -341,10 +341,181 @@
               <div class="faq-item">
                 <dt>What access does Synky need to my AWS account?</dt>
                 <dd>
-                  We need very limited access. Synky requires access to create and manage 
+                  We need very limited access. Synky requires access to create and manage OIDC configurations, 
                   specifically named IAM roles, their trust and permission policies, plus 
-                  access to view the actions performed by those roles in CloudTrail. The access 
-                  is scoped narrowly, the exact permissions we need can be found here.
+                  general read-only IAM capabilities. Access is ARN-prefix scoped so Synky cannot create 
+                  arbitrarily named roles or modify the bootstrap role itself. 
+                  The exact permissions we need can be found
+                  <button
+                    type="button"
+                    class="faq-policy-link"
+                    data-faq-policy-toggle
+                    aria-expanded="false"
+                    aria-controls="bootstrap-policy-panel"
+                  >
+                    here
+                  </button>.
+                  <div
+                    id="bootstrap-policy-panel"
+                    class="faq-policy-panel"
+                    hidden
+                    role="region"
+                    aria-label="Bootstrap role permission policy"
+                  >
+                    <div class="faq-policy-box">
+                      <p class="faq-policy-caption">
+                        Bootstrap role (<code>synky-bot</code>) permission policy
+                      </p>
+                      <pre class="faq-policy-pre"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyModifyBootstrapRole",
+      "Effect": "Deny",
+      "Action": [
+        "iam:DeleteRole",
+        "iam:UpdateRole",
+        "iam:UpdateAssumeRolePolicy",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:PutRolePermissionsBoundary",
+        "iam:DeleteRolePermissionsBoundary",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:PassRole"
+      ],
+      "Resource": "arn:aws:iam::ACCOUNT_ID:role/synky-bot"
+    },
+    {
+      "Sid": "DenyUntagSynkyManaged",
+      "Effect": "Deny",
+      "Action": "iam:UntagRole",
+      "Resource": "arn:aws:iam::ACCOUNT_ID:role/synky-run-*",
+      "Condition": {
+        "ForAnyValue:StringEquals": {
+          "iam:TagKeys": ["synky:managed"]
+        }
+      }
+    },
+    {
+      "Sid": "ManageGitHubOidcProvider",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateOpenIDConnectProvider",
+        "iam:DeleteOpenIDConnectProvider",
+        "iam:GetOpenIDConnectProvider",
+        "iam:TagOpenIDConnectProvider",
+        "iam:UntagOpenIDConnectProvider",
+        "iam:UpdateOpenIDConnectProvider",
+        "iam:AddClientIDToOpenIDConnectProvider",
+        "iam:RemoveClientIDFromOpenIDConnectProvider",
+        "iam:UpdateOpenIDConnectProviderThumbprint"
+      ],
+      "Resource": "arn:aws:iam::ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com",
+      "Condition": {
+        "StringEquals": {
+          "iam:ResourceTag/synky:managed": "true"
+        }
+      }
+    },
+    {
+      "Sid": "ManageSynkyRunRoles",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:GetRole",
+        "iam:UpdateRole",
+        "iam:UpdateAssumeRolePolicy",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:GetRolePolicy",
+        "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies",
+        "iam:PutRolePermissionsBoundary",
+        "iam:DeleteRolePermissionsBoundary",
+        "iam:TagRole",
+        "iam:UntagRole"
+      ],
+      "Resource": "arn:aws:iam::ACCOUNT_ID:role/synky-run-*",
+      "Condition": {
+        "StringEquals": {
+          "iam:ResourceTag/synky:managed": "true"
+        }
+      }
+    },
+    {
+      "Sid": "ManageSynkyPermissionsBoundary",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreatePolicy",
+        "iam:DeletePolicy",
+        "iam:GetPolicy",
+        "iam:GetPolicyVersion",
+        "iam:ListPolicyVersions",
+        "iam:CreatePolicyVersion",
+        "iam:DeletePolicyVersion",
+        "iam:SetDefaultPolicyVersion",
+        "iam:TagPolicy"
+      ],
+      "Resource": "arn:aws:iam::ACCOUNT_ID:policy/synky-permissions-boundary"
+    },
+    {
+      "Sid": "ManageSynkyRunPolicies",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreatePolicy",
+        "iam:DeletePolicy",
+        "iam:GetPolicy",
+        "iam:GetPolicyVersion",
+        "iam:ListPolicyVersions",
+        "iam:CreatePolicyVersion",
+        "iam:DeletePolicyVersion",
+        "iam:SetDefaultPolicyVersion",
+        "iam:TagPolicy",
+        "iam:UntagPolicy",
+        "iam:ListEntitiesForPolicy"
+      ],
+      "Resource": "arn:aws:iam::ACCOUNT_ID:policy/synky-run-*"
+    },
+    {
+      "Sid": "AttachSynkyRunPolicies",
+      "Effect": "Allow",
+      "Action": [
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy"
+      ],
+      "Resource": "arn:aws:iam::ACCOUNT_ID:role/synky-run-*",
+      "Condition": {
+        "StringEquals": {
+          "iam:ResourceTag/synky:managed": "true"
+        },
+        "ArnLike": {
+          "iam:PolicyARN": "arn:aws:iam::ACCOUNT_ID:policy/synky-run-*"
+        }
+      }
+    },
+    {
+      "Sid": "ReadIamForDiscovery",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetOpenIDConnectProvider",
+        "iam:ListOpenIDConnectProviders",
+        "iam:GetRole",
+        "iam:GetRolePolicy",
+        "iam:ListRoles",
+        "iam:ListRoleTags",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListInstanceProfilesForRole"
+      ],
+      "Resource": "*"
+    }
+  ]
+}</code></pre>
+                    </div>
+                  </div>
                 </dd>
               </div>
               <div class="faq-item">
@@ -457,6 +628,7 @@
     <script src="analytics-config.js"></script>
     <script src="analytics.js" defer></script>
     <script src="cookie-consent.js" defer></script>
+    <script src="faq-policy.js" defer></script>
     <script src="waitlist.js" defer></script>
   </body>
 </html>
